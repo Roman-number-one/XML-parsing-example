@@ -3,7 +3,7 @@ from typing import *
 
 
 @dataclasses.dataclass(frozen=True)
-class BaseElement:
+class BaseEntity:
     _PRETTY_PRINT_MARGIN_STEP = 4
 
     def __str__(self):
@@ -19,7 +19,7 @@ class BaseElement:
 
             for field in dataclasses.fields(element):
                 field_value = getattr(element, field.name)
-                if isinstance(field_value, BaseElement):
+                if isinstance(field_value, BaseEntity):
                     stack.append((field_value, field.name, left_margin + self._PRETTY_PRINT_MARGIN_STEP))
                     continue
 
@@ -33,33 +33,33 @@ class BaseElement:
 
 
 @dataclasses.dataclass(frozen=True)
-class PrintForm(BaseElement):
+class PrintForm(BaseEntity):
     url: Optional[str]
     signature: Optional[str]
 
 
 @dataclasses.dataclass(frozen=True)
-class ResponsibleOrganization(BaseElement):
+class ResponsibleOrganization(BaseEntity):
     reg_num: Optional[str]
     cons_registry_num: Optional[str]
     full_name: Optional[str]
 
 
 @dataclasses.dataclass(frozen=True)
-class ResponsibleInfo(BaseElement):
+class ResponsibleInfo(BaseEntity):
     post_address: Optional[str]
     fact_address: Optional[str]
 
 
 @dataclasses.dataclass(frozen=True)
-class PurchaseResponsible(BaseElement):
+class PurchaseResponsible(BaseEntity):
     organization: ResponsibleOrganization
     info: ResponsibleInfo
     responsible_role: Optional[str]
 
 
 @dataclasses.dataclass(frozen=True)
-class Document(BaseElement):
+class Document(BaseEntity):
     id: Optional[str]
     external_id: Optional[str]
     purchase_responsible: PurchaseResponsible

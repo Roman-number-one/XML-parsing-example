@@ -2,11 +2,11 @@ import dataclasses
 from typing import *
 from xml.etree import ElementTree
 
-import model
+import entities
 
 
 @dataclasses.dataclass(frozen=True)
-class ModelXMLBuilder:
+class EntityBuilder:
     namespaces: Optional[Dict[str, str]] = None
 
     def _find(self, element: ElementTree.Element, path: str) -> Optional[ElementTree.Element]:
@@ -18,14 +18,14 @@ class ModelXMLBuilder:
             return None
         return el.text
 
-    def build(self, element: ElementTree.Element) -> model.BaseElement:
+    def build(self, element: ElementTree.Element) -> entities.BaseEntity:
         raise NotImplementedError()
 
 
 @dataclasses.dataclass(frozen=True)
-class ResponsibleOrganizationBuilder(ModelXMLBuilder):
-    def build(self, element: ElementTree.Element) -> model.ResponsibleOrganization:
-        return model.ResponsibleOrganization(
+class ResponsibleOrganizationBuilder(EntityBuilder):
+    def build(self, element: ElementTree.Element) -> entities.ResponsibleOrganization:
+        return entities.ResponsibleOrganization(
             reg_num=self._find_text(element, 'default:regNum'),
             cons_registry_num=self._find_text(element, 'default:consRegistryNum'),
             full_name=self._find_text(element, 'default:fullName'),
@@ -33,17 +33,17 @@ class ResponsibleOrganizationBuilder(ModelXMLBuilder):
 
 
 @dataclasses.dataclass(frozen=True)
-class ResponsibleInfoBuilder(ModelXMLBuilder):
-    def build(self, element: ElementTree.Element) -> model.ResponsibleInfo:
-        return model.ResponsibleInfo(
+class ResponsibleInfoBuilder(EntityBuilder):
+    def build(self, element: ElementTree.Element) -> entities.ResponsibleInfo:
+        return entities.ResponsibleInfo(
             fact_address=self._find_text(element, 'default:orgFactAddress'),
             post_address=self._find_text(element, 'default:orgPostAddress'),
         )
 
 
 @dataclasses.dataclass(frozen=True)
-class PurchaseResponsibleBuilder(ModelXMLBuilder):
-    def build(self, element: ElementTree.Element) -> model.PurchaseResponsible:
+class PurchaseResponsibleBuilder(EntityBuilder):
+    def build(self, element: ElementTree.Element) -> entities.PurchaseResponsible:
         responsible_organization = ResponsibleOrganizationBuilder(
             self.namespaces,
         ).build(self._find(element, 'default:responsibleOrg'))
@@ -52,7 +52,7 @@ class PurchaseResponsibleBuilder(ModelXMLBuilder):
             self.namespaces,
         ).build(self._find(element, 'default:responsibleInfo'))
 
-        return model.PurchaseResponsible(
+        return entities.PurchaseResponsible(
             organization=responsible_organization,
             info=responsible_info,
             responsible_role=self._find_text(element, 'default:responsibleRole'),
